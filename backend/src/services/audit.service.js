@@ -1,6 +1,9 @@
 // backend/src/services/audit.service.js
 const AuditLog = require("../models/auditLog.model");
 
+/**
+ * Extracts request context (IP + user-agent) safely.
+ */
 function getReqContext(req) {
   if (!req) return {};
   return {
@@ -9,12 +12,19 @@ function getReqContext(req) {
   };
 }
 
+/**
+ * Keep audit actions consistent across the app.
+ */
 const AUDIT_ACTIONS = Object.freeze({
   LOGIN_SUCCESS: "LOGIN_SUCCESS",
   LOGIN_FAILED: "LOGIN_FAILED",
   DELETE_ACTION: "DELETE_ACTION",
 });
 
+/**
+ * Keep entity types consistent across the app.
+ * Add more when needed (ANNOUNCEMENT etc).
+ */
 const AUDIT_ENTITIES = Object.freeze({
   COURSE: "COURSE",
   CHAPTER: "CHAPTER",
@@ -23,28 +33,12 @@ const AUDIT_ENTITIES = Object.freeze({
   CONSULTATION: "CONSULTATION",
 });
 
-/**
- * Internal guard: enforce the schema policy:
- * Only these actions should be logged.
- */
-function assertAllowedAction(action) {
-  const allowed = new Set(Object.values(AUDIT_ACTIONS));
-  if (!allowed.has(action)) {
-    const err = new Error(`AUDIT_NOT_ALLOWED: ${action}`);
-    err.status = 400;
-    throw err;
-  }
-}
-
 async function logLoginSuccess({ req, userId, email }) {
-  assertAllowedAction(AUDIT_ACTIONS.LOGIN_SUCCESS);
   const ctx = getReqContext(req);
 
   return AuditLog.create({
     userId,
     action: AUDIT_ACTIONS.LOGIN_SUCCESS,
-    entityType: null,
-    entityId: null,
     meta: {
       email: email || null,
       ...ctx,
@@ -53,15 +47,11 @@ async function logLoginSuccess({ req, userId, email }) {
 }
 
 async function logLoginFailed({ req, email, reason }) {
-  assertAllowedAction(AUDIT_ACTIONS.LOGIN_FAILED);
   const ctx = getReqContext(req);
 
-  // Per schema comment: NULL user_id for failed login
   return AuditLog.create({
-    userId: null,
+    userId: null, // per schema: NULL for unknown user in failed login
     action: AUDIT_ACTIONS.LOGIN_FAILED,
-    entityType: null,
-    entityId: null,
     meta: {
       email: email || null,
       reason: reason || "INVALID_CREDENTIALS",
@@ -70,8 +60,11 @@ async function logLoginFailed({ req, email, reason }) {
   });
 }
 
+/**
+ * Logs a DELETE action.
+ * entityType examples: 'COURSE', 'CHAPTER', 'ANNOUNCEMENT', 'USER'
+ */
 async function logDeleteAction({ req, userId, entityType, entityId, meta }) {
-  assertAllowedAction(AUDIT_ACTIONS.DELETE_ACTION);
   const ctx = getReqContext(req);
 
   return AuditLog.create({
@@ -87,10 +80,9 @@ async function logDeleteAction({ req, userId, entityType, entityId, meta }) {
 }
 
 /**
- * Optional generic logger (still enforces allowed actions)
+ * Optional generic method (if you ever want to audit more actions later).
  */
 async function log({ req, userId = null, action, entityType = null, entityId = null, meta = {} }) {
-  assertAllowedAction(action);
   const ctx = getReqContext(req);
 
   return AuditLog.create({
@@ -108,5 +100,5 @@ module.exports = {
   logLoginSuccess,
   logLoginFailed,
   logDeleteAction,
-  log,
+  log, // optional
 };
