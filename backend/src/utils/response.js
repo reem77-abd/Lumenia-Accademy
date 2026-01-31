@@ -10,3 +10,5 @@ export function fail(res, message = "Error", status = 400, code = "BAD_REQUEST",
   if (details !== undefined) payload.error.details = details;
   return res.status(status).json(payload);
 }
+
+// --- IGNORE ---
