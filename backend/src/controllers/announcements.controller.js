@@ -1,6 +1,5 @@
-// src/controllers/announcements.controller.js
-const announcementsService = require("../services/announcements.service");
-const { success, error } = require("../utils/response");
+import announcementsService from "../services/announcements.service.js";
+import { success, error } from "../utils/response.js";
 
 function ensureTeacher(req, res) {
   const user = req.user;
@@ -9,11 +8,7 @@ function ensureTeacher(req, res) {
   return { ok: true, user };
 }
 
-/**
- * GET /api/announcements?teacherId=
- * Public: list
- */
-async function list(req, res, next) {
+export async function list(req, res, next) {
   try {
     const teacherIdRaw = req.query?.teacherId;
     const teacherId = teacherIdRaw !== undefined ? Number(teacherIdRaw) : undefined;
@@ -29,11 +24,7 @@ async function list(req, res, next) {
   }
 }
 
-/**
- * GET /api/announcements/:id
- * Public: details
- */
-async function getById(req, res, next) {
+export async function getById(req, res, next) {
   try {
     const id = Number(req.params.id);
     if (Number.isNaN(id)) return error(res, 400, "Announcement id must be a number");
@@ -45,12 +36,7 @@ async function getById(req, res, next) {
   }
 }
 
-/**
- * POST /api/announcements
- * Teacher: create
- * Body: { title, content }
- */
-async function create(req, res, next) {
+export async function create(req, res, next) {
   try {
     const check = ensureTeacher(req, res);
     if (!check.ok) return;
@@ -71,12 +57,7 @@ async function create(req, res, next) {
   }
 }
 
-/**
- * PATCH /api/announcements/:id
- * Teacher: update own
- * Body: { title?, content? }
- */
-async function update(req, res, next) {
+export async function update(req, res, next) {
   try {
     const check = ensureTeacher(req, res);
     if (!check.ok) return;
@@ -101,11 +82,7 @@ async function update(req, res, next) {
   }
 }
 
-/**
- * DELETE /api/announcements/:id
- * Teacher: delete own
- */
-async function remove(req, res, next) {
+export async function remove(req, res, next) {
   try {
     const check = ensureTeacher(req, res);
     if (!check.ok) return;
@@ -123,11 +100,3 @@ async function remove(req, res, next) {
     next(err);
   }
 }
-
-module.exports = {
-  list,
-  getById,
-  create,
-  update,
-  remove,
-};

@@ -1,9 +1,7 @@
-// src/routes/consultations.routes.js
-const express = require("express");
-
-const consultationsController = require("../controllers/consultations.controller");
-const auth = require("../middlewares/auth.middleware");
-const requireRole = require("../middlewares/role.middleware");
+import express from "express";
+import * as consultationsController from "../controllers/consultations.controller.js";
+import auth from "../middlewares/auth.middleware.js";
+import requireRole from "../middlewares/role.middleware.js";
 
 const router = express.Router();
 
@@ -18,10 +16,6 @@ router.post(
   consultationsController.consultCourse
 );
 
-/**
- * STUDENT: track a chapter consultation (chapter-level)
- * POST /api/consultations/chapter/:chapterId
- */
 router.post(
   "/chapter/:chapterId",
   auth,
@@ -29,10 +23,6 @@ router.post(
   consultationsController.consultChapter
 );
 
-/**
- * TEACHER: see consultations for my courses
- * GET /api/consultations/teacher/me
- */
 router.get(
   "/teacher/me",
   auth,
@@ -40,4 +30,4 @@ router.get(
   consultationsController.listTeacherConsultations
 );
 
-module.exports = router;
+export default router; 

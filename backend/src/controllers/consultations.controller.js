@@ -1,6 +1,5 @@
-// src/controllers/consultations.controller.js
-const consultationsService = require("../services/consultations.service");
-const { success, error } = require("../utils/response");
+import consultationsService from "../services/consultations.service.js";
+import { success, error } from "../utils/response.js";
 
 function ensureUser(req, res) {
   const user = req.user;
@@ -8,11 +7,7 @@ function ensureUser(req, res) {
   return { ok: true, user };
 }
 
-/**
- * POST /api/consultations/course/:courseId
- * STUDENT: inserts a consultation (chapter_id = NULL)
- */
-async function consultCourse(req, res, next) {
+export async function consultCourse(req, res, next) {
   try {
     const check = ensureUser(req, res);
     if (!check.ok) return;
@@ -31,20 +26,22 @@ async function consultCourse(req, res, next) {
   }
 }
 
-/**
- * POST /api/consultations/chapter/:chapterId
- * STUDENT: inserts a consultation for chapter (course_id derived from chapter)
- */
-async function consultChapter(req, res, next) {
+export async function consultChapter(req, res, next) {
   try {
     const check = ensureUser(req, res);
     if (!check.ok) return;
 
-    const chapterId = Number(req.params.chapterId);
+    const chapterId = Number(req.params.chapterId ?? req.body?.chapter_id ?? req.body?.chapterId);
     if (Number.isNaN(chapterId)) return error(res, 400, "chapterId must be a number");
+
+    // accept optional courseId from body or query — helpful for clients that send both
+    const courseIdRaw = req.body?.course_id ?? req.body?.courseId ?? req.query?.courseId;
+    const courseId = courseIdRaw !== undefined ? Number(courseIdRaw) : null;
+    if (courseIdRaw !== undefined && Number.isNaN(courseId)) return error(res, 400, "courseId must be a number");
 
     const created = await consultationsService.consultChapter({
       chapterId,
+      courseId,
       actor: { id: check.user.id, role: check.user.role },
     });
 
@@ -54,11 +51,7 @@ async function consultChapter(req, res, next) {
   }
 }
 
-/**
- * GET /api/consultations/teacher/me
- * TEACHER: list consultations on my courses
- */
-async function listTeacherConsultations(req, res, next) {
+export async function listTeacherConsultations(req, res, next) {
   try {
     const check = ensureUser(req, res);
     if (!check.ok) return;
@@ -72,9 +65,3 @@ async function listTeacherConsultations(req, res, next) {
     next(err);
   }
 }
-
-module.exports = {
-  consultCourse,
-  consultChapter,
-  listTeacherConsultations,
-};

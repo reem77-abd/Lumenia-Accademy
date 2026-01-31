@@ -1,8 +1,8 @@
-const express = require("express");
-const router = express.Router();
+import express from "express";
+import * as authController from "../controllers/auth.controller.js";
+import authMiddleware from "../middlewares/auth.middleware.js";
 
-const authController = require("../controllers/auth.controller");
-const authMiddleware = require("../middlewares/auth.middleware");
+const router = express.Router();
 
 // POST /auth/register
 router.post("/register", authController.register);
@@ -10,7 +10,10 @@ router.post("/register", authController.register);
 // POST /auth/login
 router.post("/login", authController.login);
 
-// GET /auth/me (protégé)
+// GET /auth/me (protected)
 router.get("/me", authMiddleware, authController.me);
 
-module.exports = router;
+// POST /auth/logout (protected) — client should discard token; server records audit
+router.post("/logout", authMiddleware, authController.logout);
+
+export default router; 

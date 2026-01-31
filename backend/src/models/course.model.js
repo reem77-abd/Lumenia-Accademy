@@ -1,29 +1,39 @@
-// src/models/course.model.js
-const db = require("../config/db");
+import db, { runWithRetry } from "../config/db.js";
 
 /**
  * Small DB adapter that works with:
  * - sqlite3 (db.get/all/run callbacks)
  * - better-sqlite3 (db.prepare().get/all/run)
+ *
+ * Note: both drivers expose `prepare()`; to reliably detect better-sqlite3
+ * we ensure `serialize` (callback-based sqlite3) is NOT present.
  */
 function isBetterSqlite3(instance) {
-  return instance && typeof instance.prepare === "function";
+  return (
+    instance &&
+    typeof instance.prepare === "function" &&
+    // node-sqlite3 exposes `serialize()` — better-sqlite3 does not
+    typeof instance.serialize !== "function"
+  );
 }
 
-function run(sql, params = []) {
+async function run(sql, params = []) {
   if (isBetterSqlite3(db)) {
     const stmt = db.prepare(sql);
     const info = stmt.run(params);
     return Promise.resolve(info); // { changes, lastInsertRowid }
   }
 
-  return new Promise((resolve, reject) => {
-    db.run(sql, params, function (err) {
-      if (err) return reject(err);
-      // sqlite3 provides lastID + changes via `this`
-      resolve({ lastInsertRowid: this.lastID, changes: this.changes });
-    });
-  });
+  try {
+    return await runWithRetry(sql, params);
+  } catch (err) {
+    if (err && err.code === "SQLITE_BUSY") {
+      const e = new Error("DATABASE_BUSY");
+      e.status = 503;
+      throw e;
+    }
+    throw err;
+  }
 }
 
 function get(sql, params = []) {
@@ -54,7 +64,7 @@ function all(sql, params = []) {
   });
 }
 
-async function listCourses({ teacherId, q }) {
+export async function listCourses({ teacherId, q }) {
   const where = [];
   const params = [];
 
@@ -89,7 +99,7 @@ async function listCourses({ teacherId, q }) {
   return all(sql, params);
 }
 
-async function getCourseById(courseId) {
+export async function getCourseById(courseId) {
   const sql = `
     SELECT
       c.id,
@@ -106,7 +116,7 @@ async function getCourseById(courseId) {
   return get(sql, [courseId]);
 }
 
-async function createCourse({ title, description, teacherId }) {
+export async function createCourse({ title, description, teacherId }) {
   const sql = `
     INSERT INTO courses (title, description, teacher_id)
     VALUES (?, ?, ?)
@@ -115,7 +125,7 @@ async function createCourse({ title, description, teacherId }) {
   return getCourseById(info.lastInsertRowid);
 }
 
-async function updateCourse({ courseId, title, description }) {
+export async function updateCourse({ courseId, title, description }) {
   // Build dynamic SET to avoid overwriting with undefined
   const sets = [];
   const params = [];
@@ -143,13 +153,13 @@ async function updateCourse({ courseId, title, description }) {
   return { changes: info.changes, course: await getCourseById(courseId) };
 }
 
-async function deleteCourse(courseId) {
+export async function deleteCourse(courseId) {
   const sql = `DELETE FROM courses WHERE id = ?`;
   const info = await run(sql, [courseId]);
   return info.changes; // number of rows deleted
 }
 
-module.exports = {
+export default {
   listCourses,
   getCourseById,
   createCourse,

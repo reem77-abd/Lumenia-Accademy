@@ -1,21 +1,29 @@
-// src/models/announcement.model.js
-const db = require("../config/db");
+import db, { runWithRetry } from "../config/db.js";
 
 function isBetterSqlite3(instance) {
-  return instance && typeof instance.prepare === "function";
+  return (
+    instance &&
+    typeof instance.prepare === "function" &&
+    // node-sqlite3 exposes `serialize()` — better-sqlite3 does NOT
+    typeof instance.serialize !== "function"
+  );
 }
 
-function run(sql, params = []) {
+async function run(sql, params = []) {
   if (isBetterSqlite3(db)) {
     const info = db.prepare(sql).run(params);
     return Promise.resolve(info);
   }
-  return new Promise((resolve, reject) => {
-    db.run(sql, params, function (err) {
-      if (err) return reject(err);
-      resolve({ lastInsertRowid: this.lastID, changes: this.changes });
-    });
-  });
+  try {
+    return await runWithRetry(sql, params);
+  } catch (err) {
+    if (err && err.code === "SQLITE_BUSY") {
+      const e = new Error("DATABASE_BUSY");
+      e.status = 503;
+      throw e;
+    }
+    throw err;
+  }
 }
 
 function get(sql, params = []) {
@@ -41,7 +49,7 @@ function all(sql, params = []) {
 /**
  * List announcements (optionally filter by teacher)
  */
-async function list({ teacherId } = {}) {
+export async function list({ teacherId } = {}) {
   const where = [];
   const params = [];
 
@@ -70,7 +78,7 @@ async function list({ teacherId } = {}) {
   return all(sql, params);
 }
 
-async function getById(announcementId) {
+export async function getById(announcementId) {
   const sql = `
     SELECT
       a.id,
@@ -87,7 +95,7 @@ async function getById(announcementId) {
   return get(sql, [announcementId]);
 }
 
-async function create({ teacherId, title, content }) {
+export async function create({ teacherId, title, content }) {
   const sql = `
     INSERT INTO announcements (teacher_id, title, content)
     VALUES (?, ?, ?)
@@ -96,7 +104,7 @@ async function create({ teacherId, title, content }) {
   return getById(info.lastInsertRowid);
 }
 
-async function update({ announcementId, title, content }) {
+export async function update({ announcementId, title, content }) {
   const sets = [];
   const params = [];
 
@@ -125,13 +133,13 @@ async function update({ announcementId, title, content }) {
   return { changes: info.changes, announcement: await getById(announcementId) };
 }
 
-async function remove(announcementId) {
+export async function remove(announcementId) {
   const sql = `DELETE FROM announcements WHERE id = ?`;
   const info = await run(sql, [announcementId]);
   return info.changes;
 }
 
-module.exports = {
+export default {
   list,
   getById,
   create,

@@ -1,9 +1,7 @@
-// src/routes/announcements.routes.js
-const express = require("express");
-
-const announcementsController = require("../controllers/announcements.controller");
-const auth = require("../middlewares/auth.middleware");
-const requireRole = require("../middlewares/role.middleware");
+import express from "express";
+import * as announcementsController from "../controllers/announcements.controller.js";
+import auth from "../middlewares/auth.middleware.js";
+import requireRole from "../middlewares/role.middleware.js";
 
 const router = express.Router();
 
@@ -37,4 +35,4 @@ router.patch("/:id", auth, requireRole("TEACHER"), announcementsController.updat
  */
 router.delete("/:id", auth, requireRole("TEACHER"), announcementsController.remove);
 
-module.exports = router;
+export default router;

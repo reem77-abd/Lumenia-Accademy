@@ -1,9 +1,5 @@
-// backend/src/services/audit.service.js
-const AuditLog = require("../models/auditLog.model");
+import AuditLog from "../models/auditLog.model.js";
 
-/**
- * Extracts request context (IP + user-agent) safely.
- */
 function getReqContext(req) {
   if (!req) return {};
   return {
@@ -12,20 +8,13 @@ function getReqContext(req) {
   };
 }
 
-/**
- * Keep audit actions consistent across the app.
- */
-const AUDIT_ACTIONS = Object.freeze({
+export const AUDIT_ACTIONS = Object.freeze({
   LOGIN_SUCCESS: "LOGIN_SUCCESS",
   LOGIN_FAILED: "LOGIN_FAILED",
   DELETE_ACTION: "DELETE_ACTION",
 });
 
-/**
- * Keep entity types consistent across the app.
- * Add more when needed (ANNOUNCEMENT etc).
- */
-const AUDIT_ENTITIES = Object.freeze({
+export const AUDIT_ENTITIES = Object.freeze({
   COURSE: "COURSE",
   CHAPTER: "CHAPTER",
   ANNOUNCEMENT: "ANNOUNCEMENT",
@@ -33,7 +22,7 @@ const AUDIT_ENTITIES = Object.freeze({
   CONSULTATION: "CONSULTATION",
 });
 
-async function logLoginSuccess({ req, userId, email }) {
+export async function logLoginSuccess({ req, userId, email }) {
   const ctx = getReqContext(req);
 
   return AuditLog.create({
@@ -46,11 +35,11 @@ async function logLoginSuccess({ req, userId, email }) {
   });
 }
 
-async function logLoginFailed({ req, email, reason }) {
+export async function logLoginFailed({ req, email, reason }) {
   const ctx = getReqContext(req);
 
   return AuditLog.create({
-    userId: null, // per schema: NULL for unknown user in failed login
+    userId: null,
     action: AUDIT_ACTIONS.LOGIN_FAILED,
     meta: {
       email: email || null,
@@ -60,11 +49,7 @@ async function logLoginFailed({ req, email, reason }) {
   });
 }
 
-/**
- * Logs a DELETE action.
- * entityType examples: 'COURSE', 'CHAPTER', 'ANNOUNCEMENT', 'USER'
- */
-async function logDeleteAction({ req, userId, entityType, entityId, meta }) {
+export async function logDeleteAction({ req, userId, entityType, entityId, meta }) {
   const ctx = getReqContext(req);
 
   return AuditLog.create({
@@ -79,10 +64,7 @@ async function logDeleteAction({ req, userId, entityType, entityId, meta }) {
   });
 }
 
-/**
- * Optional generic method (if you ever want to audit more actions later).
- */
-async function log({ req, userId = null, action, entityType = null, entityId = null, meta = {} }) {
+export async function log({ req, userId = null, action, entityType = null, entityId = null, meta = {} }) {
   const ctx = getReqContext(req);
 
   return AuditLog.create({
@@ -94,11 +76,11 @@ async function log({ req, userId = null, action, entityType = null, entityId = n
   });
 }
 
-module.exports = {
+export default {
   AUDIT_ACTIONS,
   AUDIT_ENTITIES,
   logLoginSuccess,
   logLoginFailed,
   logDeleteAction,
-  log, // optional
+  log,
 };

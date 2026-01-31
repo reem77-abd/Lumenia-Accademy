@@ -1,6 +1,5 @@
-// src/controllers/teacherStats.controller.js
-const statsService = require("../services/stats.service");
-const { success, error } = require("../utils/response");
+import statsService from "../services/stats.service.js";
+import { success, error } from "../utils/response.js";
 
 function ensureTeacher(req, res) {
   const user = req.user;
@@ -9,10 +8,7 @@ function ensureTeacher(req, res) {
   return { ok: true, user };
 }
 
-/**
- * GET /api/teacher-stats/me?from=YYYY-MM-DD&to=YYYY-MM-DD
- */
-async function getMyStats(req, res, next) {
+export async function getMyStats(req, res, next) {
   try {
     const check = ensureTeacher(req, res);
     if (!check.ok) return;
@@ -31,7 +27,3 @@ async function getMyStats(req, res, next) {
     next(err);
   }
 }
-
-module.exports = {
-  getMyStats,
-};

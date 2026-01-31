@@ -1,6 +1,8 @@
-module.exports = function roleMiddleware(...allowedRoles) {
+export default function roleMiddleware(...allowedRoles) {
+  // Normalize allowed roles once (accept friendly aliases and case-insensitive checks)
+  const normalizedAllowed = allowedRoles.map(r => String(r).trim().toUpperCase());
+
   return (req, res, next) => {
-    // Sécurité : auth.middleware doit être passé avant
     if (!req.user || !req.user.role) {
       return res.status(401).json({
         success: false,
@@ -8,17 +10,15 @@ module.exports = function roleMiddleware(...allowedRoles) {
       });
     }
 
-    const userRole = req.user.role;
+    const userRole = String(req.user.role).trim().toUpperCase();
 
-    // Vérifier si le rôle est autorisé
-    if (!allowedRoles.includes(userRole)) {
+    if (!normalizedAllowed.includes(userRole)) {
       return res.status(403).json({
         success: false,
         message: "Forbidden: insufficient permissions",
       });
     }
 
-    // Rôle OK → continuer
     next();
   };
 };

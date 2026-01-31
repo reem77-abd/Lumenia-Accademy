@@ -1,9 +1,7 @@
-// src/routes/teacherStats.routes.js
-const express = require("express");
-
-const teacherStatsController = require("../controllers/teacherStats.controller");
-const auth = require("../middlewares/auth.middleware");
-const requireRole = require("../middlewares/role.middleware");
+import express from "express";
+import * as teacherStatsController from "../controllers/teacherStats.controller.js";
+import auth from "../middlewares/auth.middleware.js";
+import requireRole from "../middlewares/role.middleware.js";
 
 const router = express.Router();
 
@@ -13,4 +11,4 @@ const router = express.Router();
  */
 router.get("/me", auth, requireRole("TEACHER"), teacherStatsController.getMyStats);
 
-module.exports = router;
+export default router;

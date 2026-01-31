@@ -1,5 +1,4 @@
-// backend/src/models/auditLog.model.js
-const db = require("../config/db");
+import db from "../config/db.js";
 
 function safeJsonParse(str) {
   if (!str) return null;
@@ -29,19 +28,26 @@ const AuditLogModel = {
    * Note: business rules (allowed actions, etc.) should live in audit.service.js
    */
   create({ userId = null, action, entityType = null, entityId = null, meta = null }) {
-    return new Promise((resolve, reject) => {
-      const metaJson = meta ? JSON.stringify(meta) : null;
+    const metaJson = meta ? JSON.stringify(meta) : null;
 
-      const sql = `
-        INSERT INTO audit_logs (user_id, action, entity_type, entity_id, meta_json)
-        VALUES (?, ?, ?, ?, ?)
-      `;
+    const sql = `
+      INSERT INTO audit_logs (user_id, action, entity_type, entity_id, meta_json)
+      VALUES (?, ?, ?, ?, ?)
+    `;
 
-      db.run(sql, [userId, action, entityType, entityId, metaJson], function (err) {
-        if (err) return reject(err);
-        resolve({ id: this.lastID });
-      });
-    });
+    return (async () => {
+      try {
+        const info = await runWithRetry(sql, [userId, action, entityType, entityId, metaJson]);
+        return { id: info.lastInsertRowid };
+      } catch (err) {
+        if (err && err.code === 'SQLITE_BUSY') {
+          const e = new Error('DATABASE_BUSY');
+          e.status = 503;
+          throw e;
+        }
+        throw err;
+      }
+    })();
   },
 
   findById(id) {
@@ -115,4 +121,4 @@ const AuditLogModel = {
   },
 };
 
-module.exports = AuditLogModel;
+export default AuditLogModel;

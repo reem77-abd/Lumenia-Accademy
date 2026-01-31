@@ -1,5 +1,4 @@
-// src/services/announcements.service.js
-const announcementModel = require("../models/announcement.model");
+import announcementModel from "../models/announcement.model.js";
 
 function httpError(statusCode, message) {
   const err = new Error(message);
@@ -12,17 +11,17 @@ function requireTeacher(actor) {
   if (actor.role !== "TEACHER") throw httpError(403, "Forbidden");
 }
 
-async function list({ teacherId } = {}) {
+export async function list({ teacherId } = {}) {
   return announcementModel.list({ teacherId });
 }
 
-async function getById(announcementId) {
+export async function getById(announcementId) {
   const ann = await announcementModel.getById(announcementId);
   if (!ann) throw httpError(404, "Announcement not found");
   return ann;
 }
 
-async function create({ payload, actor }) {
+export async function create({ payload, actor }) {
   requireTeacher(actor);
 
   const title = payload?.title ? String(payload.title).trim() : "";
@@ -38,13 +37,12 @@ async function create({ payload, actor }) {
   });
 }
 
-async function update({ announcementId, patch, actor }) {
+export async function update({ announcementId, patch, actor }) {
   requireTeacher(actor);
 
   const existing = await announcementModel.getById(announcementId);
   if (!existing) throw httpError(404, "Announcement not found");
 
-  // Ownership check
   if (existing.teacher_id !== actor.id) {
     throw httpError(403, "You can only update your own announcements");
   }
@@ -64,24 +62,21 @@ async function update({ announcementId, patch, actor }) {
   return announcement;
 }
 
-async function remove({ announcementId, actor }) {
+export async function remove({ announcementId, actor }) {
   requireTeacher(actor);
 
   const existing = await announcementModel.getById(announcementId);
   if (!existing) throw httpError(404, "Announcement not found");
 
-  // Ownership check
   if (existing.teacher_id !== actor.id) {
     throw httpError(403, "You can only delete your own announcements");
   }
 
   const changes = await announcementModel.remove(announcementId);
   if (!changes) throw httpError(404, "Announcement not found");
-
-  // Optional later: audit log DELETE_ACTION (ANNOUNCEMENT)
 }
 
-module.exports = {
+export default {
   list,
   getById,
   create,

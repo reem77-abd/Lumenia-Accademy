@@ -1,12 +1,6 @@
-// src/controllers/courses.controller.js
+import coursesService from "../services/courses.service.js";
+import { success, error } from "../utils/response.js";
 
-const coursesService = require("../services/courses.service");
-const { success, error } = require("../utils/response");
-
-/**
- * Small helper: enforce TEACHER at controller level too (defense-in-depth).
- * Routes already block non-teachers, but this avoids surprises.
- */
 function ensureTeacher(req, res) {
   const user = req.user;
   if (!user) return { ok: false, res: error(res, 401, "Unauthorized") };
@@ -14,11 +8,7 @@ function ensureTeacher(req, res) {
   return { ok: true, user };
 }
 
-/**
- * GET /api/courses?teacherId=&q=
- * Public: list courses
- */
-async function listCourses(req, res, next) {
+export async function listCourses(req, res, next) {
   try {
     const { teacherId, q } = req.query;
 
@@ -38,11 +28,7 @@ async function listCourses(req, res, next) {
   }
 }
 
-/**
- * GET /api/courses/:id
- * Public: get course details
- */
-async function getCourseById(req, res, next) {
+export async function getCourseById(req, res, next) {
   try {
     const id = Number(req.params.id);
     if (Number.isNaN(id)) return error(res, 400, "Course id must be a number");
@@ -54,12 +40,7 @@ async function getCourseById(req, res, next) {
   }
 }
 
-/**
- * POST /api/courses
- * Teacher only: create course
- * Body: { title, description? }
- */
-async function createCourse(req, res, next) {
+export async function createCourse(req, res, next) {
   try {
     const check = ensureTeacher(req, res);
     if (!check.ok) return;
@@ -80,12 +61,7 @@ async function createCourse(req, res, next) {
   }
 }
 
-/**
- * PATCH /api/courses/:id
- * Teacher only: update course (owner teacher enforced in service)
- * Body: { title?, description? }
- */
-async function updateCourse(req, res, next) {
+export async function updateCourse(req, res, next) {
   try {
     const check = ensureTeacher(req, res);
     if (!check.ok) return;
@@ -110,11 +86,7 @@ async function updateCourse(req, res, next) {
   }
 }
 
-/**
- * DELETE /api/courses/:id
- * Teacher only: delete course (owner teacher enforced in service)
- */
-async function deleteCourse(req, res, next) {
+export async function deleteCourse(req, res, next) {
   try {
     const check = ensureTeacher(req, res);
     if (!check.ok) return;
@@ -132,11 +104,3 @@ async function deleteCourse(req, res, next) {
     next(err);
   }
 }
-
-module.exports = {
-  listCourses,
-  getCourseById,
-  createCourse,
-  updateCourse,
-  deleteCourse,
-};

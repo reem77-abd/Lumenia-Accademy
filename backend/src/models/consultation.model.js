@@ -1,21 +1,29 @@
-// src/models/consultation.model.js
-const db = require("../config/db");
+import db, { runWithRetry } from "../config/db.js";
 
 function isBetterSqlite3(instance) {
-  return instance && typeof instance.prepare === "function";
+  return (
+    instance &&
+    typeof instance.prepare === "function" &&
+    // node-sqlite3 exposes `serialize()` — better-sqlite3 does NOT
+    typeof instance.serialize !== "function"
+  );
 }
 
-function run(sql, params = []) {
+async function run(sql, params = []) {
   if (isBetterSqlite3(db)) {
     const info = db.prepare(sql).run(params);
     return Promise.resolve(info);
   }
-  return new Promise((resolve, reject) => {
-    db.run(sql, params, function (err) {
-      if (err) return reject(err);
-      resolve({ lastInsertRowid: this.lastID, changes: this.changes });
-    });
-  });
+  try {
+    return await runWithRetry(sql, params);
+  } catch (err) {
+    if (err && err.code === "SQLITE_BUSY") {
+      const e = new Error("DATABASE_BUSY");
+      e.status = 503;
+      throw e;
+    }
+    throw err;
+  }
 }
 
 function get(sql, params = []) {
@@ -42,11 +50,11 @@ function all(sql, params = []) {
   });
 }
 
-async function getCourseById(courseId) {
+export async function getCourseById(courseId) {
   return get(`SELECT id, teacher_id, title FROM courses WHERE id = ?`, [courseId]);
 }
 
-async function getChapterWithCourse(chapterId) {
+export async function getChapterWithCourse(chapterId) {
   const sql = `
     SELECT id, course_id, title
     FROM chapters
@@ -55,7 +63,7 @@ async function getChapterWithCourse(chapterId) {
   return get(sql, [chapterId]);
 }
 
-async function create({ studentId, courseId, chapterId }) {
+export async function create({ studentId, courseId, chapterId }) {
   const sql = `
     INSERT INTO consultations (student_id, course_id, chapter_id)
     VALUES (?, ?, ?)
@@ -73,7 +81,7 @@ async function create({ studentId, courseId, chapterId }) {
   );
 }
 
-async function listByTeacher(teacherId) {
+export async function listByTeacher(teacherId) {
   const sql = `
     SELECT
       con.id,
@@ -95,7 +103,7 @@ async function listByTeacher(teacherId) {
   return all(sql, [teacherId]);
 }
 
-module.exports = {
+export default {
   getCourseById,
   getChapterWithCourse,
   create,

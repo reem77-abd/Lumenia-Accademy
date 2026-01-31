@@ -1,9 +1,7 @@
-// src/routes/courses.routes.js
-const express = require("express");
-
-const coursesController = require("../controllers/courses.controller");
-const auth = require("../middlewares/auth.middleware");
-const requireRole = require("../middlewares/role.middleware");
+import express from "express";
+import * as coursesController from "../controllers/courses.controller.js";
+import auth from "../middlewares/auth.middleware.js";
+import requireRole from "../middlewares/role.middleware.js";
 
 const router = express.Router();
 
@@ -22,4 +20,4 @@ router.patch("/:id", auth, requireRole("TEACHER"), coursesController.updateCours
 // Teacher only: delete course
 router.delete("/:id", auth, requireRole("TEACHER"), coursesController.deleteCourse);
 
-module.exports = router;
+export default router; 

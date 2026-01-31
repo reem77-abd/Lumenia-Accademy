@@ -1,5 +1,4 @@
-// src/services/stats.service.js
-const db = require("../config/db");
+import db from "../config/db.js";
 
 /**
  * DB adapter works with:
@@ -7,7 +6,12 @@ const db = require("../config/db");
  * - better-sqlite3 (prepare)
  */
 function isBetterSqlite3(instance) {
-  return instance && typeof instance.prepare === "function";
+  return (
+    instance &&
+    typeof instance.prepare === "function" &&
+    // node-sqlite3 exposes `serialize()` — better-sqlite3 does NOT
+    typeof instance.serialize !== "function"
+  );
 }
 
 function get(sql, params = []) {
@@ -36,32 +40,16 @@ function httpError(statusCode, message) {
   return err;
 }
 
-/**
- * Validates YYYY-MM-DD (simple check)
- */
 function isDateOnly(s) {
   return typeof s === "string" && /^\d{4}-\d{2}-\d{2}$/.test(s);
 }
 
-/**
- * Stats for teacher:
- * - totals: courses, chapters, consultations
- * - top courses/chaps
- * - daily timeline (date -> count)
- *
- * Optional filter:
- * from/to are YYYY-MM-DD (inclusive)
- */
-async function getTeacherStats({ teacherId, from, to }) {
+export async function getTeacherStats({ teacherId, from, to }) {
   if (!teacherId) throw httpError(400, "teacherId is required");
 
-  // Date filters (optional)
   if (from !== undefined && !isDateOnly(from)) throw httpError(400, "from must be YYYY-MM-DD");
   if (to !== undefined && !isDateOnly(to)) throw httpError(400, "to must be YYYY-MM-DD");
 
-  // We'll filter consultations by consulted_at datetime.
-  // Inclusive date range: >= from 00:00:00 and < (to + 1 day) 00:00:00
-  // If only one is provided, we do one-sided range.
   let whereTime = "";
   const timeParams = [];
 
@@ -74,13 +62,11 @@ async function getTeacherStats({ teacherId, from, to }) {
     timeParams.push(`${to} 00:00:00`);
   }
 
-  // 1) Totals: courses count
   const coursesRow = await get(
     `SELECT COUNT(*) AS count FROM courses WHERE teacher_id = ?`,
     [teacherId]
   );
 
-  // 2) Totals: chapters count (in teacher's courses)
   const chaptersRow = await get(
     `
     SELECT COUNT(*) AS count
@@ -91,7 +77,6 @@ async function getTeacherStats({ teacherId, from, to }) {
     [teacherId]
   );
 
-  // 3) Totals: consultations on teacher's courses (optionally in time range)
   const consultationsRow = await get(
     `
     SELECT
@@ -106,7 +91,6 @@ async function getTeacherStats({ teacherId, from, to }) {
     [teacherId, ...timeParams]
   );
 
-  // 4) Top courses by consultations
   const topCourses = await all(
     `
     SELECT
@@ -124,7 +108,6 @@ async function getTeacherStats({ teacherId, from, to }) {
     [teacherId, ...timeParams]
   );
 
-  // 5) Top chapters by consultations (only chapter-level ones)
   const topChapters = await all(
     `
     SELECT
@@ -145,7 +128,6 @@ async function getTeacherStats({ teacherId, from, to }) {
     [teacherId, ...timeParams]
   );
 
-  // 6) Timeline: consultations per day (for teacher's courses)
   const timelineDaily = await all(
     `
     SELECT
@@ -161,7 +143,6 @@ async function getTeacherStats({ teacherId, from, to }) {
     [teacherId, ...timeParams]
   );
 
-  // 7) Breakdown per course (useful for a bar chart)
   const consultationsPerCourse = await all(
     `
     SELECT
@@ -197,6 +178,6 @@ async function getTeacherStats({ teacherId, from, to }) {
   };
 }
 
-module.exports = {
+export default {
   getTeacherStats,
 };

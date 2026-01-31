@@ -1,22 +1,30 @@
-// src/models/chapter.model.js
-const db = require("../config/db");
+import db, { runWithRetry } from "../config/db.js";
 
 function isBetterSqlite3(instance) {
-  return instance && typeof instance.prepare === "function";
+  return (
+    instance &&
+    typeof instance.prepare === "function" &&
+    // node-sqlite3 exposes `serialize()` — better-sqlite3 does NOT
+    typeof instance.serialize !== "function"
+  );
 }
 
-function run(sql, params = []) {
+async function run(sql, params = []) {
   if (isBetterSqlite3(db)) {
     const stmt = db.prepare(sql);
     const info = stmt.run(params);
     return Promise.resolve(info);
   }
-  return new Promise((resolve, reject) => {
-    db.run(sql, params, function (err) {
-      if (err) return reject(err);
-      resolve({ lastInsertRowid: this.lastID, changes: this.changes });
-    });
-  });
+  try {
+    return await runWithRetry(sql, params);
+  } catch (err) {
+    if (err && err.code === "SQLITE_BUSY") {
+      const e = new Error("DATABASE_BUSY");
+      e.status = 503;
+      throw e;
+    }
+    throw err;
+  }
 }
 
 function get(sql, params = []) {
@@ -43,7 +51,7 @@ function all(sql, params = []) {
   });
 }
 
-async function listByCourse(courseId) {
+export async function listByCourse(courseId) {
   const sql = `
     SELECT
       id,
@@ -59,7 +67,7 @@ async function listByCourse(courseId) {
   return all(sql, [courseId]);
 }
 
-async function getById(chapterId) {
+export async function getById(chapterId) {
   const sql = `
     SELECT
       id,
@@ -74,13 +82,13 @@ async function getById(chapterId) {
   return get(sql, [chapterId]);
 }
 
-async function getCourseOwnerId(courseId) {
+export async function getCourseOwnerId(courseId) {
   const sql = `SELECT teacher_id FROM courses WHERE id = ?`;
   const row = await get(sql, [courseId]);
   return row ? row.teacher_id : null;
 }
 
-async function getCourseOwnerIdByChapter(chapterId) {
+export async function getCourseOwnerIdByChapter(chapterId) {
   const sql = `
     SELECT c.teacher_id AS teacher_id
     FROM chapters ch
@@ -91,7 +99,25 @@ async function getCourseOwnerIdByChapter(chapterId) {
   return row ? row.teacher_id : null;
 }
 
-async function create({ courseId, title, content, orderIndex }) {
+/**
+ * Get chapter by id AND course_id (useful when caller provides both)
+ */
+export async function getByIdAndCourse(chapterId, courseId) {
+  const sql = `
+    SELECT
+      id,
+      course_id,
+      title,
+      content,
+      order_index,
+      created_at
+    FROM chapters
+    WHERE id = ? AND course_id = ?
+  `;
+  return get(sql, [chapterId, courseId]);
+}
+
+export async function create({ courseId, title, content, orderIndex }) {
   const sql = `
     INSERT INTO chapters (course_id, title, content, order_index)
     VALUES (?, ?, ?, ?)
@@ -100,7 +126,7 @@ async function create({ courseId, title, content, orderIndex }) {
   return getById(info.lastInsertRowid);
 }
 
-async function update({ chapterId, title, content, orderIndex }) {
+export async function update({ chapterId, title, content, orderIndex }) {
   const sets = [];
   const params = [];
 
@@ -133,13 +159,13 @@ async function update({ chapterId, title, content, orderIndex }) {
   return { changes: info.changes, chapter: await getById(chapterId) };
 }
 
-async function remove(chapterId) {
+export async function remove(chapterId) {
   const sql = `DELETE FROM chapters WHERE id = ?`;
   const info = await run(sql, [chapterId]);
   return info.changes;
 }
 
-module.exports = {
+export default {
   listByCourse,
   getById,
   getCourseOwnerId,

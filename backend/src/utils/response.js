@@ -11,4 +11,13 @@ export function fail(res, message = "Error", status = 400, code = "BAD_REQUEST",
   return res.status(status).json(payload);
 }
 
+// Backwards-compatible helpers used across controllers (many expect `success`/`error`)
+export function success(res, status = 200, data = null, message = "OK", meta = undefined) {
+  return ok(res, data, message, status, meta);
+}
+
+export function error(res, status = 400, message = "Error", code = "BAD_REQUEST", details = undefined) {
+  return fail(res, message, status, code, details);
+}
+
 // --- IGNORE ---

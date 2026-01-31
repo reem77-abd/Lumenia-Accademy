@@ -1,5 +1,4 @@
-// src/services/consultations.service.js
-const consultationModel = require("../models/consultation.model");
+import consultationModel from "../models/consultation.model.js";
 
 function httpError(statusCode, message) {
   const err = new Error(message);
@@ -12,7 +11,7 @@ function requireRole(actor, role) {
   if (actor.role !== role) throw httpError(403, "Forbidden");
 }
 
-async function consultCourse({ courseId, actor }) {
+export async function consultCourse({ courseId, actor }) {
   requireRole(actor, "STUDENT");
 
   const course = await consultationModel.getCourseById(courseId);
@@ -25,10 +24,16 @@ async function consultCourse({ courseId, actor }) {
   });
 }
 
-async function consultChapter({ chapterId, actor }) {
+export async function consultChapter({ chapterId, courseId = null, actor }) {
   requireRole(actor, "STUDENT");
 
-  const chapter = await consultationModel.getChapterWithCourse(chapterId);
+  // Prefer direct chapter lookup by id. If not found and caller provided a courseId,
+  // attempt a (chapterId + courseId) lookup — this handles clients that submit both.
+  let chapter = await consultationModel.getChapterWithCourse(chapterId);
+  if (!chapter && courseId !== null && courseId !== undefined) {
+    chapter = await (await import("../models/chapter.model.js")).getByIdAndCourse(chapterId, courseId);
+  }
+
   if (!chapter) throw httpError(404, "Chapter not found");
 
   return consultationModel.create({
@@ -38,12 +43,12 @@ async function consultChapter({ chapterId, actor }) {
   });
 }
 
-async function listTeacherConsultations({ actor }) {
+export async function listTeacherConsultations({ actor }) {
   requireRole(actor, "TEACHER");
   return consultationModel.listByTeacher(actor.id);
 }
 
-module.exports = {
+export default {
   consultCourse,
   consultChapter,
   listTeacherConsultations,

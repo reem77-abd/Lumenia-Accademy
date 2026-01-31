@@ -1,6 +1,5 @@
-// src/controllers/chapters.controller.js
-const chaptersService = require("../services/chapters.service");
-const { success, error } = require("../utils/response");
+import chaptersService from "../services/chapters.service.js";
+import { success, error } from "../utils/response.js";
 
 function ensureTeacher(req, res) {
   const user = req.user;
@@ -9,27 +8,26 @@ function ensureTeacher(req, res) {
   return { ok: true, user };
 }
 
-/**
- * GET /api/chapters/course/:courseId
- * Public: list chapters by course
- */
-async function listByCourse(req, res, next) {
+export async function listByCourse(req, res, next) {
   try {
-    const courseId = Number(req.params.courseId);
+    // accept courseId from path param or query string
+    const raw = req.params.courseId ?? req.query?.courseId;
+    if (raw === undefined) return error(res, 400, "courseId is required (path or ?courseId=)");
+
+    const courseId = Number(raw);
     if (Number.isNaN(courseId)) return error(res, 400, "courseId must be a number");
 
-    const chapters = await chaptersService.listByCourse(courseId);
+    // optional search query (keeps API flexible)
+    const q = req.query?.q ?? null;
+
+    const chapters = await chaptersService.listByCourse(courseId, q);
     return success(res, 200, { chapters });
   } catch (err) {
     next(err);
   }
 }
 
-/**
- * GET /api/chapters/:id
- * Public: chapter details
- */
-async function getById(req, res, next) {
+export async function getById(req, res, next) {
   try {
     const id = Number(req.params.id);
     if (Number.isNaN(id)) return error(res, 400, "Chapter id must be a number");
@@ -41,23 +39,21 @@ async function getById(req, res, next) {
   }
 }
 
-/**
- * POST /api/chapters/course/:courseId
- * Teacher: create chapter in owned course
- * Body: { title, content, orderIndex? }
- */
-async function create(req, res, next) {
+export async function create(req, res, next) {
   try {
     const check = ensureTeacher(req, res);
     if (!check.ok) return;
 
-    const courseId = Number(req.params.courseId);
-    if (Number.isNaN(courseId)) return error(res, 400, "courseId must be a number");
+    // accept courseId from either params or body (body may use snake_case from external clients)
+    const courseIdRaw = req.params.courseId ?? req.body?.course_id ?? req.body?.courseId;
+    const courseId = Number(courseIdRaw);
+    if (Number.isNaN(courseId)) return error(res, 400, "courseId must be a number (path or body.course_id)");
 
+    // accept both camelCase and snake_case body keys for compatibility with external callers
     const payload = {
-      title: req.body?.title,
-      content: req.body?.content,
-      orderIndex: req.body?.orderIndex,
+      title: req.body?.title ?? req.body?.title_text ?? null,
+      content: req.body?.content ?? req.body?.body ?? null,
+      orderIndex: req.body?.orderIndex ?? req.body?.order_index ?? req.body?.order ?? undefined,
     };
 
     const created = await chaptersService.create({
@@ -72,12 +68,7 @@ async function create(req, res, next) {
   }
 }
 
-/**
- * PATCH /api/chapters/:id
- * Teacher: update chapter (must own the course)
- * Body: { title?, content?, orderIndex? }
- */
-async function update(req, res, next) {
+export async function update(req, res, next) {
   try {
     const check = ensureTeacher(req, res);
     if (!check.ok) return;
@@ -103,11 +94,7 @@ async function update(req, res, next) {
   }
 }
 
-/**
- * DELETE /api/chapters/:id
- * Teacher: delete chapter (must own the course)
- */
-async function remove(req, res, next) {
+export async function remove(req, res, next) {
   try {
     const check = ensureTeacher(req, res);
     if (!check.ok) return;
@@ -125,11 +112,3 @@ async function remove(req, res, next) {
     next(err);
   }
 }
-
-module.exports = {
-  listByCourse,
-  getById,
-  create,
-  update,
-  remove,
-};

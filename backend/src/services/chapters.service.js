@@ -1,5 +1,4 @@
-// src/services/chapters.service.js
-const chapterModel = require("../models/chapter.model");
+import chapterModel from "../models/chapter.model.js";
 
 function httpError(statusCode, message) {
   const err = new Error(message);
@@ -12,18 +11,18 @@ function requireTeacher(actor) {
   if (actor.role !== "TEACHER") throw httpError(403, "Forbidden");
 }
 
-async function listByCourse(courseId) {
+export async function listByCourse(courseId) {
   // Public
   return chapterModel.listByCourse(courseId);
 }
 
-async function getById(chapterId) {
+export async function getById(chapterId) {
   const chapter = await chapterModel.getById(chapterId);
   if (!chapter) throw httpError(404, "Chapter not found");
   return chapter;
 }
 
-async function create({ courseId, payload, actor }) {
+export async function create({ courseId, payload, actor }) {
   requireTeacher(actor);
 
   // Ownership check: teacher must own this course
@@ -45,8 +44,6 @@ async function create({ courseId, payload, actor }) {
     orderIndex = Math.floor(n);
   }
 
-  // Note: UNIQUE(course_id, order_index) can throw constraint error if duplicated.
-  // Your global error middleware can format it, or you can catch it later.
   return chapterModel.create({
     courseId,
     title,
@@ -55,13 +52,12 @@ async function create({ courseId, payload, actor }) {
   });
 }
 
-async function update({ chapterId, patch, actor }) {
+export async function update({ chapterId, patch, actor }) {
   requireTeacher(actor);
 
   const existing = await chapterModel.getById(chapterId);
   if (!existing) throw httpError(404, "Chapter not found");
 
-  // Ownership check: teacher must own the chapter's course
   const ownerId = await chapterModel.getCourseOwnerIdByChapter(chapterId);
   if (!ownerId) throw httpError(404, "Course not found");
   if (ownerId !== actor.id) throw httpError(403, "You can only update chapters in your own courses");
@@ -89,7 +85,7 @@ async function update({ chapterId, patch, actor }) {
   return chapter;
 }
 
-async function remove({ chapterId, actor }) {
+export async function remove({ chapterId, actor }) {
   requireTeacher(actor);
 
   const existing = await chapterModel.getById(chapterId);
@@ -101,11 +97,9 @@ async function remove({ chapterId, actor }) {
 
   const changes = await chapterModel.remove(chapterId);
   if (!changes) throw httpError(404, "Chapter not found");
-
-  // Optional later: write audit log DELETE_ACTION (CHAPTER)
 }
 
-module.exports = {
+export default {
   listByCourse,
   getById,
   create,
