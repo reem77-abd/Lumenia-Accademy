@@ -21,3 +21,5 @@ export function errorMiddleware(err, req, res, next) {
 
   return fail(res, message, status, code, details);
 }
+
+// --- IGNORE ---
