@@ -9,7 +9,7 @@ frontend/dist/
 
 # Environment & local files
 .env
-backend/database/*.sqlite
+.env.*
 
 # SQLite local DB
 backend/database/*.sqlite
