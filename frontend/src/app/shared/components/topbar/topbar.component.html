@@ -1,0 +1,22 @@
+<header class="topbar">
+  <div class="left">
+    <!-- ✅ NEW: sidebar toggle button -->
+    <button
+      type="button"
+      class="menu-btn"
+      (click)="onToggleSidebar()"
+      aria-label="Toggle menu"
+    >
+      ☰
+    </button>
+
+    <strong>Luminia Academy</strong>
+  </div>
+
+  <div class="right" *ngIf="user() as u">
+    <span>{{ u.name }} ({{ u.role }})</span>
+
+    <button class="btn ghost" (click)="goProfile()">Profile</button>
+    <button class="btn" (click)="logout()">Logout</button>
+  </div>
+</header>

@@ -1,0 +1,25 @@
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px;
+  color: var(--text);
+}
+
+.sidebar a {
+  display: block;
+  padding: 10px 12px;
+  border-radius: 10px;
+  text-decoration: none;
+  color: var(--text);
+  font-weight: 500;
+}
+
+.sidebar a:hover {
+  background: rgba(31, 111, 120, 0.12);
+}
+
+.sidebar a.active {
+  background: rgba(31, 111, 120, 0.16);
+  color: var(--primary);
+}

@@ -1,0 +1,13 @@
+<div class="shell">
+  <app-topbar (toggleSidebar)="toggleSidebar()"></app-topbar>
+
+  <div class="body">
+    <aside class="sidebar" [class.closed]="!sidebarOpen">
+      <app-sidebar></app-sidebar>
+    </aside>
+
+    <main class="content">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+</div>

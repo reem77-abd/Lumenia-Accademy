@@ -1,0 +1,77 @@
+.page {
+  max-width: 920px;
+  margin: 0 auto;
+}
+
+.top {
+  margin-bottom: 12px;
+}
+
+.meta {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.badge {
+  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--card-muted);
+}
+
+.title {
+  margin: 6px 0 12px 0;
+  font-size: 26px;
+}
+
+.content {
+  line-height: 1.7;
+  white-space: pre-wrap;
+}
+
+.footer {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+
+.error h3 {
+  margin: 0 0 6px 0;
+}
+
+.btn {
+  margin-top: 10px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(0, 0, 0, 0.14);
+  background: #111;
+  color: #fff;
+  cursor: pointer;
+}
+
+.skeleton {
+  background: rgba(0, 0, 0, 0.06);
+  border-radius: 10px;
+  animation: pulse 1.2s infinite ease-in-out;
+}
+
+.skeleton.title {
+  height: 28px;
+  width: 70%;
+  margin-bottom: 12px;
+}
+
+.skeleton.line {
+  height: 14px;
+  width: 100%;
+  margin: 10px 0;
+}
+
+@keyframes pulse {
+  0% { opacity: 0.55; }
+  50% { opacity: 1; }
+  100% { opacity: 0.55; }
+}

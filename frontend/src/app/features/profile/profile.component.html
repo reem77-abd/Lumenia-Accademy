@@ -1,0 +1,47 @@
+<div class="page">
+  <div class="card">
+    <h1>Profile</h1>
+    <p class="muted">Your account details</p>
+
+    <div class="info" *ngIf="user() as u; else noUser">
+      <div class="info-row">
+        <span class="label">Name</span>
+        <span class="value">{{ u.name }}</span>
+      </div>
+      <div class="info-row">
+        <span class="label">Email</span>
+        <span class="value">{{ u.email }}</span>
+      </div>
+      <div class="info-row">
+        <span class="label">Role</span>
+        <span class="value">{{ u.role }}</span>
+      </div>
+    </div>
+    <ng-template #noUser>
+      <div class="empty">No user data available.</div>
+    </ng-template>
+
+    <div class="divider"></div>
+
+    <h2>Change password</h2>
+    <p class="muted">This will be enabled once the API is available.</p>
+
+    <div class="form">
+      <label>Current password</label>
+      <input type="password" [(ngModel)]="currentPassword" placeholder="Current password" />
+
+      <label>New password</label>
+      <input type="password" [(ngModel)]="newPassword" placeholder="New password" />
+
+      <label>Confirm new password</label>
+      <input type="password" [(ngModel)]="confirmPassword" placeholder="Confirm new password" />
+    </div>
+
+    <div class="actions">
+      <button class="btn primary" [disabled]="!canSubmit()" (click)="save()">
+        Save changes
+      </button>
+      <span class="hint" *ngIf="message()">{{ message() }}</span>
+    </div>
+  </div>
+</div>

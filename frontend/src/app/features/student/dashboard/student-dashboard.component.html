@@ -1,0 +1,37 @@
+<div class="page">
+  <div class="card">
+    <div class="head">
+      <div>
+        <h1>Student Dashboard</h1>
+        <p class="muted">Select a course to view chapters.</p>
+      </div>
+      <a class="btn ghost" routerLink="/announcements">Announcements</a>
+    </div>
+
+    <app-loading *ngIf="loading" message="Loading your courses..." />
+
+    <p *ngIf="error" class="error">
+      {{ error }}
+    </p>
+
+    <button class="btn ghost" *ngIf="error" (click)="loadCourses()">
+      Retry
+    </button>
+
+    <div *ngIf="!loading && !error">
+      <div *ngIf="courses.length === 0" class="empty">
+        No courses available yet.
+      </div>
+
+      <div class="list">
+        <div class="item" *ngFor="let c of courses">
+          <div>
+            <div class="title">{{ c.title }}</div>
+            <div class="muted">{{ c.description || "No description" }}</div>
+          </div>
+          <button class="btn" (click)="openCourse(c.id)">Open</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

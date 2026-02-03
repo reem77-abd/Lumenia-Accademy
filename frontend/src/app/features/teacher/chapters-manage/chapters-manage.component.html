@@ -1,0 +1,51 @@
+<div class="page">
+  <div class="card">
+    <h1>Chapters</h1>
+
+    <div class="form-row">
+      <label>Course</label>
+      <select [(ngModel)]="selectedCourseId" (change)="loadChapters()">
+        <option *ngFor="let c of courses" [ngValue]="c.id">
+          {{ $any(c).title }}
+        </option>
+      </select>
+    </div>
+
+    <div class="error" *ngIf="error">{{ error }}</div>
+
+    <div class="panel">
+      <h3>{{ editingId ? "Edit chapter" : "Create chapter" }}</h3>
+
+      <label>Title</label>
+      <input [(ngModel)]="form.title" placeholder="Chapter title" />
+
+      <label>Content</label>
+      <textarea [(ngModel)]="form.content" rows="6" placeholder="Chapter content"></textarea>
+
+      <div class="actions">
+        <button class="btn" (click)="save()" [disabled]="loading">
+          {{ editingId ? "Update" : "Create" }}
+        </button>
+        <button class="btn ghost" (click)="startCreate()" [disabled]="loading">Reset</button>
+      </div>
+    </div>
+
+    <hr />
+
+    <div *ngIf="loading">Loading...</div>
+
+    <div class="list" *ngIf="!loading">
+      <div class="item" *ngFor="let ch of chapters">
+        <div>
+          <div class="title">{{ $any(ch).title }}</div>
+          <div class="muted">ID: {{ ch.id }}</div>
+        </div>
+
+        <div class="actions">
+          <button class="btn ghost" (click)="startEdit(ch)">Edit</button>
+          <button class="btn danger" (click)="remove(ch.id)">Delete</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

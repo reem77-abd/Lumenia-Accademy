@@ -1,0 +1,28 @@
+<div class="page">
+  <div class="card">
+    <h1>Admin Dashboard</h1>
+    <p class="muted">Manage users and monitor system activity.</p>
+
+    <div class="grid">
+      <div class="tile">
+        <div class="k">Users</div>
+        <div class="v">{{ loading ? "…" : usersCount }}</div>
+      </div>
+
+      <div class="tile">
+        <div class="k">Active users</div>
+        <div class="v">{{ loading ? "…" : activeCount }}</div>
+      </div>
+
+      <a class="tile link" routerLink="/admin/logs">
+        <div class="k">Audit logs</div>
+        <div class="v">View</div>
+      </a>
+    </div>
+
+    <div class="actions">
+      <a class="btn" routerLink="/admin/users">Manage Users</a>
+      <a class="btn ghost" routerLink="/admin/logs">View Logs</a>
+    </div>
+  </div>
+</div>

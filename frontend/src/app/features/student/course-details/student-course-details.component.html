@@ -1,0 +1,33 @@
+<div class="page">
+  <div class="card">
+    <button class="btn ghost" (click)="backToCourses()">← Back to courses</button>
+
+    <app-loading *ngIf="loading" message="Loading course..." />
+
+    <p *ngIf="error" class="error">
+      {{ error }}
+    </p>
+
+    <button class="btn ghost" *ngIf="error" (click)="load()">Retry</button>
+
+    <div *ngIf="!loading && !error">
+      <h1>{{ course?.title }}</h1>
+      <p class="muted">{{ course?.description || "No description." }}</p>
+
+      <h2>Chapters</h2>
+
+      <div *ngIf="chapters.length === 0" class="empty">
+        No chapters for this course yet.
+      </div>
+
+      <div class="list">
+        <div class="item" *ngFor="let ch of chapters">
+          <div>
+            <div class="title">{{ ch.title }}</div>
+          </div>
+          <button class="btn" (click)="openChapter(ch.id)">Open chapter</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

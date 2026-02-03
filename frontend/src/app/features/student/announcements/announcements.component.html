@@ -1,0 +1,30 @@
+<div class="page">
+  <div class="card">
+    <div class="head">
+      <div>
+        <h1>Announcements</h1>
+        <p class="muted">Latest updates from teachers.</p>
+      </div>
+      <button class="btn ghost" (click)="load()">Refresh</button>
+    </div>
+
+    <div class="error" *ngIf="error">{{ error }}</div>
+    <div *ngIf="loading">Loading...</div>
+
+    <div class="list" *ngIf="!loading">
+      <button class="item" *ngFor="let a of items" (click)="open(a)">
+        <div class="title">{{ a.title }}</div>
+        <div class="meta">
+          <span>{{ a.teacher_name || "Teacher" }}</span>
+          <span class="dot">•</span>
+          <span>{{ fmt(a.created_at) }}</span>
+        </div>
+        <div class="preview">{{ a.content }}</div>
+      </button>
+    </div>
+
+    <div class="empty" *ngIf="!loading && items.length === 0">
+      No announcements yet.
+    </div>
+  </div>
+</div>

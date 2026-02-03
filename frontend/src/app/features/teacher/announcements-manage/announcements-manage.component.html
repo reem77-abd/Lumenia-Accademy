@@ -1,0 +1,52 @@
+<div class="page">
+  <div class="card">
+    <h1>Announcements</h1>
+    <p class="muted">Create and manage your announcements.</p>
+
+    <div class="error" *ngIf="error">{{ error }}</div>
+
+    <div class="panel">
+      <h3>{{ editingId ? "Edit announcement" : "Create announcement" }}</h3>
+
+      <label>Title</label>
+      <input [(ngModel)]="form.title" placeholder="Announcement title" />
+
+      <label>Content</label>
+      <textarea [(ngModel)]="form.content" rows="6" placeholder="Write your message"></textarea>
+
+      <div class="actions">
+        <button class="btn primary" (click)="save()" [disabled]="loading">
+          {{ editingId ? "Update" : "Create" }}
+        </button>
+        <button class="btn ghost" (click)="startCreate()" [disabled]="loading">Reset</button>
+      </div>
+    </div>
+
+    <hr />
+
+    <div *ngIf="loading">Loading...</div>
+
+    <div class="list" *ngIf="!loading">
+      <div class="item" *ngFor="let a of items">
+        <div class="title">{{ a.title }}</div>
+        <div class="muted">{{ a.content }}</div>
+        <div class="actions">
+          <button class="btn ghost" (click)="startEdit(a)">Edit</button>
+          <button class="btn danger" (click)="confirmDelete(a.id)">Delete</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="empty" *ngIf="!loading && items.length === 0">
+      No announcements yet.
+    </div>
+  </div>
+
+  <app-confirm-dialog
+    *ngIf="confirmOpen"
+    title="Delete announcement"
+    message="Are you sure you want to delete this announcement?"
+    (confirm)="doDelete()"
+    (cancel)="cancelDelete()"
+  ></app-confirm-dialog>
+</div>

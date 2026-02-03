@@ -1,0 +1,17 @@
+.page { max-width: 1100px; margin: 0 auto; padding: 18px; }
+.card { background:#fff; border:1px solid rgba(0,0,0,.08); border-radius:14px; padding:18px; box-shadow:0 8px 30px rgba(0,0,0,.05); }
+.muted { opacity:.7; }
+
+.table { margin-top: 14px; border:1px solid rgba(0,0,0,.10); border-radius:12px; overflow:hidden; }
+.row { display:grid; grid-template-columns: 1.2fr 1.4fr 1fr 0.8fr 0.6fr; gap: 10px; padding: 12px; align-items:center; border-top:1px solid rgba(0,0,0,.08); }
+.row.header { border-top:none; background: rgba(0,0,0,.03); font-size:12px; opacity:.75; }
+.strong { font-weight: 600; }
+.status { font-size: 12px; padding: 4px 10px; border-radius: 999px; border: 1px solid rgba(0,0,0,.14); }
+.status.off { opacity:.6; }
+.error { color:#b00020; margin-top: 10px; }
+.empty { padding: 16px; opacity: .7; }
+
+@media (max-width: 900px) {
+  .row { grid-template-columns: 1fr; }
+  .row.header { display:none; }
+}

@@ -1,0 +1,8 @@
+.page { max-width: 980px; margin: 0 auto; }
+.form-row { margin: 10px 0; }
+.panel { border:1px solid var(--border); border-radius:12px; padding:14px; margin: 12px 0; background: var(--card-muted); }
+.actions { display:flex; gap:10px; margin-top: 12px; }
+.list { display:flex; flex-direction:column; gap:10px; margin-top: 12px; }
+.item { display:flex; justify-content:space-between; align-items:flex-start; gap:12px; border:1px solid var(--border); border-radius:12px; padding:12px; background: var(--card); }
+.title { font-weight:600; }
+.muted { color: var(--muted); font-size: 13px; margin-top: 4px; }

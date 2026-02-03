@@ -1,0 +1,35 @@
+<h2>Register</h2>
+<p class="muted">Create a student or teacher account.</p>
+
+<div class="form">
+  <input [(ngModel)]="name" placeholder="Full name" />
+  <input [(ngModel)]="email" placeholder="Email" />
+  <input [(ngModel)]="password" placeholder="Password" type="password" />
+
+  <label>
+    Role
+    <select [(ngModel)]="role">
+      <option value="STUDENT">Student</option>
+      <option value="TEACHER">Teacher</option>
+    </select>
+  </label>
+
+  <p *ngIf="error" class="error">{{ error }}</p>
+
+  <button
+    class="btn primary"
+    (click)="submit()"
+    [disabled]="loading || !name || !email || !password"
+  >
+    {{ loading ? 'Loading...' : 'Create account' }}
+  </button>
+
+  <p class="muted" style="margin: 6px 0 0; font-size: 13px;">
+    Already have an account?
+    <a routerLink="/login">Login</a>
+  </p>
+
+  <p class="muted" style="margin: 0; font-size: 12px;">
+    Admin accounts are created by the system and cannot be registered here.
+  </p>
+</div>

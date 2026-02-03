@@ -1,0 +1,43 @@
+<div class="page">
+  <div class="card">
+    <div class="head">
+      <h1>Users</h1>
+      <input [(ngModel)]="search" placeholder="Search by name, email, role..." />
+    </div>
+
+    <div class="error" *ngIf="error">{{ error }}</div>
+    <div *ngIf="loading">Loading...</div>
+
+    <div class="table" *ngIf="!loading">
+      <div class="row header">
+        <div>Name</div>
+        <div>Email</div>
+        <div>Role</div>
+        <div>Status</div>
+        <div>Action</div>
+      </div>
+
+      <div class="row" *ngFor="let u of filtered()">
+        <div class="strong">{{ $any(u).name || "-" }}</div>
+        <div>{{ $any(u).email || "-" }}</div>
+        <div class="pill">{{ $any(u).role || "-" }}</div>
+        <div>
+          <span class="status" [class.off]="!isActive(u)">
+            {{ isActive(u) ? "Active" : "Inactive" }}
+          </span>
+        </div>
+        <div>
+          <button class="btn"
+                  [class.danger]="isActive(u)"
+                  (click)="toggleActive(u)">
+            {{ isActive(u) ? "Deactivate" : "Activate" }}
+          </button>
+        </div>
+      </div>
+
+      <div class="empty" *ngIf="filtered().length === 0">
+        No users match your search.
+      </div>
+    </div>
+  </div>
+</div>

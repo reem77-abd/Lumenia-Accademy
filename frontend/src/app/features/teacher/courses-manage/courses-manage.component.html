@@ -1,0 +1,42 @@
+<div class="page">
+  <div class="card">
+    <h1>Courses</h1>
+
+    <div class="error" *ngIf="error">{{ error }}</div>
+
+    <div class="panel">
+      <h3>{{ editingId ? "Edit course" : "Create course" }}</h3>
+
+      <label>Title</label>
+      <input [(ngModel)]="form.title" placeholder="Course title" />
+
+      <label>Description</label>
+      <textarea [(ngModel)]="form.description" rows="4" placeholder="Course description"></textarea>
+
+      <div class="actions">
+        <button class="btn" (click)="save()" [disabled]="loading">
+          {{ editingId ? "Update" : "Create" }}
+        </button>
+        <button class="btn ghost" (click)="startCreate()" [disabled]="loading">Reset</button>
+      </div>
+    </div>
+
+    <hr />
+
+    <div *ngIf="loading">Loading...</div>
+
+    <div class="list" *ngIf="!loading">
+      <div class="item" *ngFor="let c of courses">
+        <div>
+          <div class="title">{{ $any(c).title }}</div>
+          <div class="muted">{{ $any(c).description }}</div>
+        </div>
+
+        <div class="actions">
+          <button class="btn ghost" (click)="startEdit(c)">Edit</button>
+          <button class="btn danger" (click)="remove(c.id)">Delete</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

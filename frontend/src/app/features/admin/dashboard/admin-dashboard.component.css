@@ -1,0 +1,14 @@
+.page { max-width: 980px; margin: 0 auto; padding: 18px; }
+.card { background:#fff; border:1px solid rgba(0,0,0,.08); border-radius:14px; padding:18px; box-shadow:0 8px 30px rgba(0,0,0,.05); }
+.muted { opacity:.7; }
+
+.grid { display:grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 14px; }
+.tile { border:1px solid rgba(0,0,0,.10); border-radius:12px; padding:14px; text-decoration:none; color:#111; }
+.tile.link:hover { background: rgba(0,0,0,.03); }
+.k { font-size: 12px; opacity:.7; }
+.v { font-size: 26px; font-weight: 700; margin-top: 6px; }
+
+.actions { display:flex; gap:10px; margin-top: 14px; }
+.btn { padding:10px 12px; border-radius:10px; border:1px solid rgba(0,0,0,.14); background:#111; color:#fff; cursor:pointer; text-decoration:none; display:inline-block; }
+.btn.ghost { background:#fff; color:#111; }
+@media (max-width: 860px) { .grid { grid-template-columns: 1fr; } }

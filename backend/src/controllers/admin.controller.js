@@ -1,4 +1,5 @@
 import userModel from "../models/user.model.js";
+import AuditLogModel from "../models/auditLog.model.js";
 
 export async function listUsers(req, res, next) {
   try {
@@ -9,6 +10,44 @@ export async function listUsers(req, res, next) {
     return next(err);
   }
 }
+
+export async function listAuditLogs(req, res, next) {
+  try {
+    const {
+      userId,
+      action,
+      entityType,
+      entityId,
+      from,
+      to,
+      limit,
+      offset,
+      order,
+    } = req.query;
+
+    const logs = await AuditLogModel.list({
+      userId: userId !== undefined && userId !== null && userId !== "" ? Number(userId) : undefined,
+      action: action || undefined,
+      entityType: entityType || undefined,
+      entityId: entityId !== undefined && entityId !== null && entityId !== "" ? Number(entityId) : undefined,
+      from: from || undefined,
+      to: to || undefined,
+      limit: limit !== undefined ? Math.min(Number(limit), 200) : 50,
+      offset: offset !== undefined ? Number(offset) : 0,
+      order: order || "DESC",
+    });
+
+return res.status(200).json({
+      success: true,
+      message: "OK",
+      data: { logs },
+    });
+  } catch (err) {
+    console.error("admin listAuditLogs error:", err);
+    return next(err);
+  }
+}
+
 
 export async function activateUser(req, res) {
   try {
@@ -93,4 +132,5 @@ export default {
   activateUser,
   deactivateUser,
   updateUser,
+  listAuditLogs,
 };

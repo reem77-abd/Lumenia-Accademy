@@ -1,0 +1,13 @@
+<h2>Login</h2>
+<p class="muted">Access your dashboard.</p>
+
+<div class="form">
+  <input [(ngModel)]="email" placeholder="Email" />
+  <input [(ngModel)]="password" placeholder="Password" type="password" />
+
+  <p *ngIf="error" class="error">{{ error }}</p>
+
+  <button class="btn primary" (click)="submit()" [disabled]="loading">
+    {{ loading ? 'Loading...' : 'Login' }}
+  </button>
+</div>

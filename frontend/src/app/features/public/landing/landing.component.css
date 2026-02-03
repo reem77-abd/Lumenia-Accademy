@@ -1,0 +1,45 @@
+.landing {
+  min-height: calc(100vh - 60px);
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+
+.hero {
+  width: min(760px, 100%);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 28px;
+  background: var(--card);
+  box-shadow: var(--shadow-md);
+}
+
+h1 {
+  margin: 0 0 8px;
+  font-size: 36px;
+  color: var(--text);
+}
+
+.subtitle {
+  margin: 0 0 14px;
+  font-size: 18px;
+  color: var(--muted);
+}
+
+.desc {
+  margin: 0 0 18px;
+  color: var(--text);
+  line-height: 1.6;
+}
+
+.actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.hint {
+  margin-top: 14px;
+  font-size: 13px;
+  color: var(--muted);
+}

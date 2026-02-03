@@ -1,0 +1,26 @@
+<nav class="sidebar" *ngIf="user() as u">
+
+  <!-- Student -->
+  <ng-container *ngIf="u.role === 'STUDENT'">
+    <a routerLink="/student/dashboard" routerLinkActive="active">Dashboard</a>
+    <a routerLink="/student/courses" routerLinkActive="active">Courses</a>
+    <a routerLink="/announcements" routerLinkActive="active">Announcements</a>
+  </ng-container>
+
+  <!-- Teacher -->
+  <ng-container *ngIf="u.role === 'TEACHER'">
+    <a routerLink="/teacher/dashboard" routerLinkActive="active">Dashboard</a>
+    <a routerLink="/teacher/courses-manage" routerLinkActive="active">My Courses</a>
+    <a routerLink="/teacher/chapters-manage" routerLinkActive="active">Chapters</a>
+    <a routerLink="/teacher/stats" routerLinkActive="active">Statistics</a>
+    <a routerLink="/teacher/announcements" routerLinkActive="active">Announcements</a>
+  </ng-container>
+
+  <!-- Admin -->
+  <ng-container *ngIf="u.role === 'ADMIN'">
+    <a routerLink="/admin/users" routerLinkActive="active">Users</a>
+    <a routerLink="/admin/logs" routerLinkActive="active">Audit Logs</a>
+    <a routerLink="/announcements" routerLinkActive="active">Announcements</a>
+  </ng-container>
+
+</nav>

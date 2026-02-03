@@ -9,6 +9,9 @@ const router = express.Router();
 router.use(authMiddleware);
 router.use(roleMiddleware("ADMIN"));
 
+// ✅ GET /admin/logs (audit logs)
+router.get("/logs", adminController.listAuditLogs);
+
 // ✅ GET /admin/users  (list users)
 router.get("/users", adminController.listUsers);
 

@@ -1,0 +1,39 @@
+<div class="page">
+  <div class="top">
+    <button class="btn ghost" (click)="backToCourse()">← Back to course</button>
+  </div>
+
+  <div class="card" *ngIf="loading">
+    <div class="skeleton title"></div>
+    <div class="skeleton line"></div>
+    <div class="skeleton line"></div>
+    <div class="skeleton line"></div>
+  </div>
+
+  <div class="card error" *ngIf="!loading && error">
+    <h3>Something went wrong</h3>
+    <p>{{ error }}</p>
+    <button class="btn ghost" (click)="ngOnInit()">Retry</button>
+  </div>
+
+  <div class="card" *ngIf="!loading && !error && chapter">
+    <div class="meta">
+      <span class="badge">Chapter</span>
+      <span class="muted">ID: {{ chapter.id }}</span>
+    </div>
+
+    <h1 class="title">{{ chapter.title }}</h1>
+
+    <div class="content" *ngIf="$any(chapter).content">
+      <p [innerText]="$any(chapter).content"></p>
+    </div>
+
+    <div class="content" *ngIf="!$any(chapter).content && $any(chapter).description">
+      <p [innerText]="$any(chapter).description"></p>
+    </div>
+
+    <div class="footer">
+      <span class="hint">Your read is recorded automatically.</span>
+    </div>
+  </div>
+</div>

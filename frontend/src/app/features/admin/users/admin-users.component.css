@@ -1,0 +1,23 @@
+.page { max-width: 1100px; margin: 0 auto; padding: 18px; }
+.card { background:#fff; border:1px solid rgba(0,0,0,.08); border-radius:14px; padding:18px; box-shadow:0 8px 30px rgba(0,0,0,.05); }
+
+.head { display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; }
+input { width: 320px; max-width: 100%; padding:10px 12px; border-radius:10px; border:1px solid rgba(0,0,0,.14); outline:none; }
+
+.table { margin-top: 14px; border:1px solid rgba(0,0,0,.10); border-radius:12px; overflow:hidden; }
+.row { display:grid; grid-template-columns: 1.2fr 1.6fr 0.8fr 0.8fr 0.8fr; gap: 10px; padding: 12px; align-items:center; border-top:1px solid rgba(0,0,0,.08); }
+.row.header { border-top:none; background: rgba(0,0,0,.03); font-size:12px; opacity:.75; }
+.strong { font-weight: 600; }
+.pill { font-size: 12px; opacity: .8; }
+.status { font-size: 12px; padding: 4px 10px; border-radius: 999px; border: 1px solid rgba(0,0,0,.14); }
+.status.off { opacity:.6; }
+
+.btn { padding:8px 10px; border-radius:10px; border:1px solid rgba(0,0,0,.14); background:#111; color:#fff; cursor:pointer; }
+.btn.danger { background:#b00020; border-color:#b00020; }
+.error { color:#b00020; margin-top: 10px; }
+.empty { padding: 16px; opacity: .7; }
+
+@media (max-width: 900px) {
+  .row { grid-template-columns: 1fr; }
+  .row.header { display:none; }
+}

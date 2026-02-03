@@ -1,0 +1,28 @@
+<div class="page">
+  <div class="card">
+    <h1>Stats</h1>
+
+    <div *ngIf="loading">Loading...</div>
+    <div class="error" *ngIf="!loading && error">{{ error }}</div>
+
+    <div class="grid" *ngIf="!loading && !error && stats">
+      <div class="tile">
+        <div class="k">Total consultations</div>
+        <div class="v">{{ stats.totals?.consultations ?? "-" }}</div>
+      </div>
+
+      <div class="tile">
+        <div class="k">Courses</div>
+        <div class="v">{{ stats.totals?.courses ?? "-" }}</div>
+      </div>
+
+      <div class="tile">
+        <div class="k">Chapters</div>
+        <div class="v">{{ stats.totals?.chapters ?? "-" }}</div>
+      </div>
+    </div>
+
+    <!-- Optional: show raw JSON for debugging -->
+    <pre class="json" *ngIf="!loading && !error && stats">{{ stats | json }}</pre>
+  </div>
+</div>

@@ -1,0 +1,36 @@
+<div class="page">
+  <div class="card">
+    <div class="head">
+      <div>
+        <h1>Courses</h1>
+        <p class="muted">Browse and search available courses.</p>
+      </div>
+    </div>
+
+    <app-loading *ngIf="loading" message="Loading courses..." />
+
+    <p *ngIf="error" class="error">
+      {{ error }}
+    </p>
+
+    <button class="btn ghost" *ngIf="error" (click)="load()">Retry</button>
+
+    <div *ngIf="!loading && !error">
+      <input [(ngModel)]="query" class="input" placeholder="Search courses..." />
+
+      <div *ngIf="filteredCourses.length === 0" class="empty">
+        No courses found.
+      </div>
+
+      <div class="list">
+        <div class="item" *ngFor="let c of filteredCourses">
+          <div>
+            <div class="title">{{ c.title }}</div>
+            <div class="muted">{{ c.description || "No description" }}</div>
+          </div>
+          <button class="btn" (click)="openCourse(c.id)">Open</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

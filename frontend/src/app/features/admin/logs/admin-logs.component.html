@@ -1,0 +1,33 @@
+<h1>Audit Logs</h1>
+
+<app-loading *ngIf="loading"></app-loading>
+
+<div *ngIf="!loading && error" class="error">
+  {{ error }}
+</div>
+
+<div *ngIf="!loading && !error && logs.length === 0" class="empty">
+  No audit logs yet.
+</div>
+
+<table *ngIf="!loading && !error && logs.length > 0">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Action</th>
+      <th>User</th>
+      <th>Entity</th>
+      <th>Created</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <tr *ngFor="let l of logs">
+      <td>{{ l.id }}</td>
+      <td>{{ l.action }}</td>
+      <td>{{ l.userId }}</td>
+      <td>{{ l.entityType }} #{{ l.entityId }}</td>
+      <td>{{ l.createdAt }}</td>
+    </tr>
+  </tbody>
+</table>
