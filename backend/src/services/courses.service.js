@@ -1,4 +1,5 @@
 import courseModel from "../models/course.model.js";
+import AuditService from "./audit.service.js";
 
 function httpError(statusCode, message) {
   const err = new Error(message);
@@ -87,6 +88,23 @@ export async function deleteCourse({ courseId, actor }) {
 
   const changes = await courseModel.deleteCourse(courseId);
   if (!changes) throw httpError(404, "Course not found");
+
+  // ✅ ADD AUDIT LOG
+  try {
+    await AuditService.logDeleteAction({
+      req: null,
+      userId: actor.id,
+      entityType: AuditService.AUDIT_ENTITIES.COURSE,
+      entityId: courseId,
+      meta: {
+        courseTitle: existing.title,
+        teacherId: existing.teacher_id,
+      },
+    });
+  } catch (auditErr) {
+    console.error("Failed to log course deletion:", auditErr);
+    // Don't fail the delete if audit logging fails
+  }
 }
 
 export default {

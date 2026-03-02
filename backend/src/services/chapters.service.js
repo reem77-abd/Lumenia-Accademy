@@ -1,4 +1,5 @@
 import chapterModel from "../models/chapter.model.js";
+import AuditService from "./audit.service.js";
 
 function httpError(statusCode, message) {
   const err = new Error(message);
@@ -97,6 +98,23 @@ export async function remove({ chapterId, actor }) {
 
   const changes = await chapterModel.remove(chapterId);
   if (!changes) throw httpError(404, "Chapter not found");
+
+  // ✅ ADD AUDIT LOG
+  try {
+    await AuditService.logDeleteAction({
+      req: null,
+      userId: actor.id,
+      entityType: AuditService.AUDIT_ENTITIES.CHAPTER,
+      entityId: chapterId,
+      meta: {
+        chapterTitle: existing.title,
+        courseId: existing.course_id,
+      },
+    });
+  } catch (auditErr) {
+    console.error("Failed to log chapter deletion:", auditErr);
+    // Don't fail the delete if audit logging fails
+  }
 }
 
 export default {

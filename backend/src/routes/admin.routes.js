@@ -21,4 +21,8 @@ router.patch("/users/:id/activate", adminController.activateUser);
 // ✅ PATCH /admin/users/:id/deactivate  (deactivate user)
 router.patch("/users/:id/deactivate", adminController.deactivateUser);
 
+// ✅ GET /admin/logs (audit logs)
+router.get("/logs", adminController.listAuditLogs);
+
+
 export default router;

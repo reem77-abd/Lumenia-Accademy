@@ -1,5 +1,7 @@
 import userModel from "../models/user.model.js";
+import AuditLogModel from "../models/auditLog.model.js";
 
+// admin
 export async function listUsers(req, res, next) {
   try {
     const users = await userModel.listUsers();
@@ -7,6 +9,42 @@ export async function listUsers(req, res, next) {
   } catch (err) {
     console.error("admin listUsers error:", err);
     return next(err);
+  }
+}
+
+export async function listAuditLogs(req, res, next) {
+  try {
+    const {
+      userId,
+      action,
+      entityType,
+      entityId,
+      from,
+      to,
+      limit,
+      offset,
+      order,
+    } = req.query;
+
+    const logs = await AuditLogModel.list({
+      userId: userId !== undefined ? Number(userId) : undefined,
+      action: action || undefined,
+      entityType: entityType || undefined,
+      entityId: entityId !== undefined ? Number(entityId) : undefined,
+      from: from || undefined,
+      to: to || undefined,
+      limit: limit !== undefined ? Math.min(Number(limit), 200) : 50,
+      offset: offset !== undefined ? Number(offset) : 0,
+      order: order || "DESC",
+    });
+
+    return res.json({
+      success: true,
+      message: "OK",
+      data: { logs },
+    });
+  } catch (err) {
+    next(err);
   }
 }
 
@@ -93,4 +131,5 @@ export default {
   activateUser,
   deactivateUser,
   updateUser,
+  listAuditLogs,
 };

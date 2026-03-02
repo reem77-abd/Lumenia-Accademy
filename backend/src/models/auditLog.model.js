@@ -28,27 +28,27 @@ const AuditLogModel = {
    * Note: business rules (allowed actions, etc.) should live in audit.service.js
    */
   create({ userId = null, action, entityType = null, entityId = null, meta = null }) {
-    const metaJson = meta ? JSON.stringify(meta) : null;
+  const metaJson = meta ? JSON.stringify(meta) : null;
 
-    const sql = `
-      INSERT INTO audit_logs (user_id, action, entity_type, entity_id, meta_json)
-      VALUES (?, ?, ?, ?, ?)
-    `;
+  const sql = `
+    INSERT INTO audit_logs (user_id, action, entity_type, entity_id, meta_json)
+    VALUES (?, ?, ?, ?, ?)
+  `;
 
-    return (async () => {
-      try {
-        const info = await runWithRetry(sql, [userId, action, entityType, entityId, metaJson]);
-        return { id: info.lastInsertRowid };
-      } catch (err) {
-        if (err && err.code === 'SQLITE_BUSY') {
+  return new Promise((resolve, reject) => {
+    db.run(sql, [userId, action, entityType, entityId, metaJson], function(err) {
+      if (err) {
+        if (err.code === 'SQLITE_BUSY') {
           const e = new Error('DATABASE_BUSY');
           e.status = 503;
-          throw e;
+          return reject(e);
         }
-        throw err;
+        return reject(err);
       }
-    })();
-  },
+      resolve({ id: this.lastID });
+    });
+  });
+},
 
   findById(id) {
     return new Promise((resolve, reject) => {

@@ -1,4 +1,5 @@
 import announcementModel from "../models/announcement.model.js";
+import AuditService from "./audit.service.js";
 
 function httpError(statusCode, message) {
   const err = new Error(message);
@@ -74,6 +75,23 @@ export async function remove({ announcementId, actor }) {
 
   const changes = await announcementModel.remove(announcementId);
   if (!changes) throw httpError(404, "Announcement not found");
+
+  // ✅ ADD AUDIT LOG
+  try {
+    await AuditService.logDeleteAction({
+      req: null,
+      userId: actor.id,
+      entityType: AuditService.AUDIT_ENTITIES.ANNOUNCEMENT,
+      entityId: announcementId,
+      meta: {
+        announcementTitle: existing.title,
+        teacherId: existing.teacher_id,
+      },
+    });
+  } catch (auditErr) {
+    console.error("Failed to log announcement deletion:", auditErr);
+    // Don't fail the delete if audit logging fails
+  }
 }
 
 export default {
